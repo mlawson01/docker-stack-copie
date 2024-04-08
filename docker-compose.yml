@@ -1,0 +1,46 @@
+version: '3.1'
+
+services:
+
+    blazegraph:
+        image: conjecto/blazegraph:2.1.5
+        container_name: blazegraph
+        restart: always
+        ports:
+          - 9999:9999
+        environment:
+            JAVA_OPTS: "-Xms2g -Xmx3g"
+        volumes:
+          - ./dataset:/docker-entrypoint-initdb.d
+
+    datatourisme:
+        container_name: datatourisme
+        build: docker
+        ports:
+            - "8000:90"
+        restart: always
+        depends_on:
+            - blazegraph
+    
+    caddy-server:
+        container_name: caddy
+        depends_on:
+            - datatourisme
+        image: caddy
+        restart: unless-stopped
+        links: 
+            - datatourisme
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile
+            - caddy_data:/data
+            - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+
