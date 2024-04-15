@@ -1,6 +1,0 @@
-localhost:80 {
-    
-}
-localhost:8080 {
-    reverse_proxy datatourisme:90
-}
